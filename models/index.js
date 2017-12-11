@@ -1,12 +1,17 @@
 import Sequelize from 'sequelize'
 
-const sequelize = new Sequelize(config.database, config.username, config.password)
+const sequelize = new Sequelize('slack', 'postgres', 'postgres', {
+    dialect: 'postgres',
+    operatorsAliases: Sequelize.Op,
+})
 
 const models = {
-    user: sequelize.import('./models'),
+    Channel: sequelize.import('./channel'),
+    Member: sequelize.import('./member'),
+    Message: sequelize.import('./message'),
+    Team: sequelize.import('./team'),
+    User: sequelize.import('./user'),
 }
-
-const thing = 1
 
 Object.keys(models).forEach((modelName) => {
     if ('associate' in models[modelName]) {
