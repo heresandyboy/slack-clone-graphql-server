@@ -6,6 +6,8 @@ const models = {
     user: sequelize.import('./models'),
 }
 
+const thing = 1
+
 Object.keys(models).forEach((modelName) => {
     if ('associate' in models[modelName]) {
         models[modelName].associate(models)
