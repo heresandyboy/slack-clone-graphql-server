@@ -1,7 +1,12 @@
 import express from 'express'
 import bodyParser from 'body-parser'
-import { graphqlExpress, graphiqlExpress } from 'apollo-server-express'
-import { makeExecutableSchema } from 'graphql-tools'
+import {
+    graphqlExpress,
+    graphiqlExpress,
+} from 'apollo-server-express'
+import {
+    makeExecutableSchema,
+} from 'graphql-tools'
 
 import typeDefs from './schema'
 import resolvers from './resolvers'
@@ -16,8 +21,22 @@ const schema = makeExecutableSchema({
 
 const app = express()
 const graphqlEndpoint = '/graphql'
+const graphiqlEndpoint = '/graphiql'
 
-app.use(graphqlEndpoint, bodyParser.json(), graphqlExpress({ schema }))
-app.use('/graphiql', graphiqlExpress({ endpointURL: graphqlEndpoint }))
+app.use(graphqlEndpoint, bodyParser.json(), graphqlExpress({
+    schema,
+}))
+app.use(graphiqlEndpoint, graphiqlExpress({
+    endpointURL: graphqlEndpoint,
+}))
 
-app.listen(PORT)
+// Force drop and create database to start fresh
+// models.sequelize.sync({ force: true })
+//     .then(() => {
+//         app.listen(PORT)
+//     })
+
+models.sequelize.sync()
+    .then(() => {
+        app.listen(PORT)
+    })
