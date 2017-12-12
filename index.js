@@ -30,7 +30,7 @@ app.use(graphiqlEndpoint, graphiqlExpress({
     endpointURL: graphqlEndpoint,
 }))
 
-// Force drop and create database to start fresh
+// // Force drop and create database to start fresh
 // models.sequelize.sync({ force: true })
 //     .then(() => {
 //         app.listen(PORT)

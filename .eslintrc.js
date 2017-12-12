@@ -7,6 +7,7 @@ module.exports = {
         "semi": [2, "never"],
         "linebreak-style": ["error", "windows"],
         "indent": [ 2, 4 ],
-        "eol-last": [ "error", "never"]
+        "eol-last": [ "error", "never"],
+        "function-paren-newline": ["error", "never"],
     }
 }
