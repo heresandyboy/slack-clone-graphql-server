@@ -15,7 +15,10 @@ export default (sequelize, DataTypes) => {
             },
         })
         Team.belongsTo(models.User, {
-            foreignKey: 'owner',
+            foreignKey: {
+                name: 'owner',
+                allowNull: false,
+            },
         })
     }
 

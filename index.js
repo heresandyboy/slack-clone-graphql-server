@@ -34,6 +34,9 @@ app.use(graphqlEndpoint, bodyParser.json(), graphqlExpress({
     schema,
     context: {
         models,
+        user: {
+            id: 1,
+        },
     },
 }))
 app.use(graphiqlEndpoint, graphiqlExpress({
