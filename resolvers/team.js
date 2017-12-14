@@ -4,13 +4,13 @@ export default {
             try {
                 await models.Team.create({
                     ...args,
-                    owner: user.id,
+                    owner: user.id
                 })
                 return true
             } catch (error) {
                 console.debug(error)
                 return false
             }
-        },
-    },
+        }
+    }
 }

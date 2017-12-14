@@ -1,30 +1,23 @@
 import express from 'express'
-import path from 'path'
 import bodyParser from 'body-parser'
-import {
-    graphqlExpress,
-    graphiqlExpress,
-} from 'apollo-server-express'
-import {
-    makeExecutableSchema,
-} from 'graphql-tools'
-import {
-    fileLoader,
-    mergeTypes,
-    mergeResolvers,
-} from 'merge-graphql-schemas'
+import { graphqlExpress, graphiqlExpress } from 'apollo-server-express'
+import { makeExecutableSchema } from 'graphql-tools'
+import path from 'path'
+import { fileLoader, mergeTypes, mergeResolvers } from 'merge-graphql-schemas'
 import cors from 'cors'
 
 import models from './models'
 
-const PORT = 8080
+const SECRET = 'asiodfhoi1hoi23jnl1kejd'
+const SECRET2 = 'asiodfhoi1hoi23jnl1kejasdjlkfasdd'
 
 const typeDefs = mergeTypes(fileLoader(path.join(__dirname, './schema')))
+
 const resolvers = mergeResolvers(fileLoader(path.join(__dirname, './resolvers')))
 
 const schema = makeExecutableSchema({
     typeDefs,
-    resolvers,
+    resolvers
 })
 
 const app = express()
@@ -32,25 +25,21 @@ const app = express()
 app.use(cors('*'))
 
 const graphqlEndpoint = '/graphql'
-const graphiqlEndpoint = '/graphiql'
 
-app.use(graphqlEndpoint, bodyParser.json(), graphqlExpress({
-    schema,
-    context: {
-        models,
-        user: {
-            id: 1,
-        },
-    },
-}))
-app.use(graphiqlEndpoint, graphiqlExpress({
-    endpointURL: graphqlEndpoint,
-}))
+app.use(graphqlEndpoint,
+    bodyParser.json(),
+    graphqlExpress({
+        schema,
+        context: {
+            models,
+            user: { id: 1 },
+            SECRET,
+            SECRET2
+        }
+    }))
 
-// Force drop and create database to start fresh
-const force = false
+app.use('/graphiql', graphiqlExpress({ endpointURL: graphqlEndpoint }))
 
-models.sequelize.sync({ force })
-    .then(() => {
-        app.listen(PORT)
-    })
+models.sequelize.sync({}).then(() => {
+    app.listen(8081)
+})

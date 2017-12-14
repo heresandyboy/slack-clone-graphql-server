@@ -8,6 +8,6 @@ export default {
                 console.log(error)
                 return false
             }
-        },
-    },
+        }
+    }
 }

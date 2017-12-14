@@ -3,31 +3,21 @@ import _ from 'lodash'
 import bcrypt from 'bcrypt'
 
 export const createTokens = async (user, secret, secret2) => {
-    const createToken = jwt.sign({
-        user: _.pick(user, ['id', 'isAdmin']),
-    },
-    secret, {
-        expiresIn: '1m',
-    })
+    const createToken = jwt.sign({ user: _.pick(user, ['id']) },
+        secret,
+        { expiresIn: '1h' })
 
-    const createRefreshToken = jwt.sign({
-        user: _.pick(user, 'id'),
-    },
-    secret2, {
-        expiresIn: '7d',
-    })
+    const createRefreshToken = jwt.sign({ user: _.pick(user, 'id') },
+        secret2,
+        { expiresIn: '7d' })
 
-    return Promise.all([createToken, createRefreshToken])
+    return [createToken, createRefreshToken]
 }
 
 export const refreshTokens = async (token, refreshToken, models, SECRET) => {
     let userId = -1
     try {
-        const {
-            user: {
-                id,
-            },
-        } = jwt.decode(refreshToken)
+        const { user: { id } } = jwt.decode(refreshToken)
         userId = id
     } catch (err) {
         return {}
@@ -37,12 +27,7 @@ export const refreshTokens = async (token, refreshToken, models, SECRET) => {
         return {}
     }
 
-    const user = await models.User.findOne({
-        where: {
-            id: userId,
-        },
-        raw: true,
-    })
+    const user = await models.User.findOne({ where: { id: userId }, raw: true })
 
     if (!user) {
         return {}
@@ -58,38 +43,37 @@ export const refreshTokens = async (token, refreshToken, models, SECRET) => {
     return {
         token: newToken,
         refreshToken: newRefreshToken,
-        user,
+        user
     }
 }
 
-export const tryLogin = async (email, password, models, SECRET) => {
-    const user = await models.User.findOne({
-        where: {
-            email,
-        },
-        raw: true,
-    })
+export const tryLogin = async (email, password, models, SECRET, SECRET2) => {
+    const user = await models.User.findOne({ where: { email }, raw: true })
     if (!user) {
-        // user with provided email not found
+    // user with provided email not found
         return {
             ok: false,
-            errors: [{
-                path: 'email',
-                message: 'No account found for that user. Please register a new account.',
-            }],
+            errors: [{ path: 'email', message: 'Wrong email' }]
         }
     }
 
     const valid = await bcrypt.compare(password, user.password)
     if (!valid) {
-        // bad password
-        throw new Error('Invalid login')
+    // bad password
+        return {
+            ok: false,
+            errors: [{ path: 'password', message: 'Wrong password' }]
+        }
     }
 
-    const [token, refreshToken] = await createTokens(user, SECRET, user.refreshSecret)
+    /* this will help to auto expire password if it changes */
+    const refreshTokenSecret = user.password + SECRET2
+
+    const [token, refreshToken] = await createTokens(user, SECRET, refreshTokenSecret)
 
     return {
+        ok: true,
         token,
-        refreshToken,
+        refreshToken
     }
 }
