@@ -9,8 +9,12 @@ export default {
     Mutation: {
         createTeam: requiresAuth.createResolver(async (parent, args, { models, user }) => {
             try {
-                await models.Team.create({ ...args, owner: user.id })
-                return { ok: true }
+                const team = await models.Team.create({ ...args, owner: user.id })
+                models.Channel.create({ name: 'general', public: true, teamId: team.id })
+                return {
+                    ok: true,
+                    team
+                }
             } catch (err) {
                 console.log(err)
                 return {
@@ -20,5 +24,8 @@ export default {
             }
         })
     },
-    Team: { channels: ({ id }, args, { models }) => models.Channel.findAll({ teamId: id }) }
+    Team: {
+        channels: ({ id }, args, { models }) =>
+            models.Channel.findAll({ where: { teamId: id } })
+    }
 }
