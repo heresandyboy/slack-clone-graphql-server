@@ -64,6 +64,8 @@ app.use(graphqlEndpoint,
 
 app.use('/graphiql', graphiqlExpress({ endpointURL: graphqlEndpoint }))
 
-models.sequelize.sync({}).then(() => {
+const force = false
+
+models.sequelize.sync({ force }).then(() => {
     app.listen(8080)
 })
